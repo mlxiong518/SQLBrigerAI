@@ -1,0 +1,447 @@
+1. 项目需求
+# 项目背景
+ 构建一个基于 `Spring Boot 3.4.0` 的后端应用，集成 SQL 解析、转换和优化功能，
+ 并结合大语言模型（如 `Ollama` 和 `Qwen2.5`）来提高返回质量。
+
+ 2. 使用大模型接口进行返回,支持 本地化ollama 和 远程接口基于模型qwen2.5。
+ 3. 优化 prompt 提高返回质量, 定义模板数据，使用 langchain 优化 prompt 提高返回质量；
+    要求 prompt 对于无关问题或其它敏感问题进行拒绝回复，防止错误回复。
+ 4. 使用 function calling 提高返回质量 定义接口 例如日期等关键字 
+ 5. 本项目是不支持联网搜索
+
+
+2.技术栈与框架版本关系
+1. Spring Boot
+版本: Spring Boot 3.4.0 要求Java 21 LTS。
+作用: 提供项目的基础框架，支持开发 RESTful API。
+      集成其他组件（如数据库、事务管理、依赖注入等）。
+
+2.SQL解析和转换
+目标: 解析用户输入的 SQL，提取语句信息并转换为 PostgreSQL 语句。
+推荐框架:
+JSQLParser 
+开源许可：Apache 2.0 (免费) 
+版本: 最新稳定版（如 4.9）
+作用:解析 SQL 语句，将其抽象为语法树（AST），便于提取表名、字段名、条件等。
+    支持SQL语句修改，支持SQL语句生成，支持多种数据库方言。
+    允许从 Oracle/MySQL 转换到 PostgreSQL 的 SQL。
+    可用于分析 Oracle/MySQL 的 SQL。
+SQL支持：
+  SELECT INSERT UPDATE DELETE CREATE DROP ALTER 
+性能：较快，专注于解析
+使用难度：中等，API相对简单
+数据库支持：Oracle 、MySQL、 PostgreSQL、 SQL Server
+应用场景：SQL语句解析、 简单SQL转换、SQL语法验证
+集成难度：简单
+内存占用：较低
+文档质量：良好
+Maven依赖示例：
+<dependency>
+    <groupId>com.github.jsqlparser</groupId>
+    <artifactId>jsqlparser</artifactId>
+    <version>4.9</version>
+</dependency>
+
+SQL Translator
+  开源许可：Apache 2.0 (免费) 
+  示例工具库: 自行实现规则引擎，或者集成工具（如 Apache Calcite）。
+  Apache Calcite
+  版本: 最新稳定版（如 1.37.0）
+  主要功能:
+   完整的SQL优化框架。
+   跨数据库转换。
+   查询优化。
+   支持自定义规则，如果需求简单，也可以手动编写规则来特定转换 Oracle/MySQL 到 PostgreSQL。
+SQL支持：所有标准SQL语句
+        复杂查询优化
+        子查询处理
+        视图处理
+性能：相对较慢，但功能更全面
+使用难度：较高，需要深入学习
+数据库支持：所有主流数据库、支持自定义适配器 
+应用场景：复杂SQL优化、 跨数据库迁移、 查询引擎开发
+集成难度：中等到复杂
+内存占用：较高
+文档质量：优秀
+Maven依赖示例：
+<dependency>
+    <groupId>org.apache.calcite</groupId>
+    <artifactId>calcite-core</artifactId>
+    <version>1.37.0</version>
+</dependency>
+
+SQL解析和转换选择建议
+1. 选择JSQLParser如果你需要：
+   简单的SQL解析和转换
+   快速集成
+   较小的内存占用
+   主要关注SQL语法解析
+2. 选择Apache Calcite如果你需要：
+   复杂的SQL优化
+   完整的查询引擎功能
+   跨数据库的高级转换
+   自定义优化规则
+
+3.大语言模型调用
+目标: 调用大模型 API 对 SQL 进行优化、生成执行计划、提供优化建议。
+期望： 生成SQL只是第一步，确保生成结果的准确性同样重要。模型采用三阶段纠错与筛选流程：
+- 多层纠错与筛选机制:对初始生成的SQL进行语法和逻辑错误修复。
+- 候选筛选：通过深度优化的筛选模型，精确挑选最优SQL。
+- 综合优化：将逻辑一致性作为最终判断标准，替代传统的“自一致性策略”。
+
+推荐框架:
+LangChain
+  版本: 最新稳定版（如 0.0.321）
+  作用：
+    提供与大语言模型（如 OpenAI GPT、Llama 2）的高效接口。
+    集成 Prompt 模板、上下文管理等功能，便于与外部 LLM 交互。
+  主要功能：
+   Prompt 管理和优化
+   上下文管理
+   记忆功能
+   文档加载和处理
+   链式调用
+   Agent 功能
+ 使用方式:
+   在项目中集成 LangChain 的 Java SDK 或通过 HTTP 调用 Python 服务。
+ 模型建议:
+   OpenAI API 或 本地 LLM（如 Llama 2、Claude、Mistral）。
+   如果不支持联网，可选择开源大模型（如 LLaMA 2、ChatGLM）在本地部署。
+
+Spring Boot AI
+Spring Boot AI 是 Spring 框架针对 AI 开发的官方支持，提供：
+与各种 AI 模型的集成接口
+简化 AI 应用开发流程
+提供标准化的 API 调用方式
+
+可以在 Spring Boot3 项目中集成 LangChain
+利用 Spring Boot 的依赖注入和配置管理
+
+1.集成关系：
+
+@Configuration
+public class AIConfig {
+    // 可以在 Spring Boot 中集成 LangChain
+    @Bean
+    public LangChainService langChainService() {
+        // 配置 LangChain
+        return new LangChainService();
+    }
+}
+2.实际应用场景：
+@Service
+public class AIService {
+    // 使用 LangChain 优化 Prompt
+    public String processWithLangChain(String input) {
+        // 使用 LangChain 的 Prompt 模板
+        PromptTemplate promptTemplate = new PromptTemplate(
+            "请回答关于 {topic} 的问题：{question}"
+        );
+        
+        // 处理并返回结果
+        return result;
+    }
+}
+
+4. 数据库支持
+目标: 支持 PostgreSQL、Oracle、MySQL 的 SQL 分析与执行。
+框架: 
+MyBatis Spring Boot Starter：
+   版本: 3.0.3
+   作用：要求 Java 17+，完全兼容您项目中提到的 JSQLParser 和 Calcite
+PostgreSQL JDBC Driver:
+   版本: 最新稳定版（如 42.6.x）。
+   作用: 连接 PostgreSQL 数据库。
+Oracle JDBC Driver 和 MySQL JDBC Driver:
+版本: 与对应数据库版本兼容。
+作用: 支持解析和转换 Oracle/MySQL 的 SQL。
+
+数据库驱动推荐版本：
+<!-- PostgreSQL 驱动 -->
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>42.6.0</version>
+</dependency>
+
+<!-- MySQL 驱动 -->
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>8.0.33</version>
+</dependency>
+
+<!-- Oracle 驱动 -->
+<dependency>
+    <groupId>com.oracle.database.jdbc</groupId>
+    <artifactId>ojdbc11</artifactId>
+    <version>23.3.0.23.09</version>
+</dependency>
+
+5. 执行计划与耗时分析
+目标: 获取 SQL 的执行计划、预计耗时，并返回优化建议。
+技术选型:
+   PostgreSQL EXPLAIN/EXPLAIN ANALYZE:
+   通过 PostgreSQL 的 EXPLAIN 命令分析 SQL 执行计划，获取耗时和优化建议。
+   需要使用 Spring JDBC 或其他工具执行命令并解析输出。
+   模拟优化器/大模型辅助:
+   调用大模型接口（如通过 LangChain）生成优化建议，并结合 EXPLAIN 的输出返回给用户。
+
+6. RESTful API
+目标: 提供接口供内部服务调用，接收文本并返回转换后的结果。
+
+7. 安全性
+目标: 对内部
+我们将一步一步分析并完成您的需求,且完成一个功能附上对应的测试代码。
+
+
+提示工程（Prompt Engineering）
+
+# 任务描述
+instruction = """
+# Role 角色
+1.身份：您是一个资深的DBA数据专家，能够接收多种数据库语句（Oracle、MySQL、PostgreSQL等），并根据需求进行转换、优化、评估和反馈，
+      最终以简单易懂的方式提供高性能的PostgreSQL解决方案。
+2.交流对象：与您交流的用户是不懂代码SQL的小白，这些用户不善于表达sql和代码需求.
+
+
+# Goals: 目标
+请提供您想要评估的SQL语句，我将帮助您完成以下任务：
+1.SQL转换：将用户提供的SQL语句转换为PostgreSQL的语法，并进行性能优化。
+3.准确性检查：确保SQL的逻辑和结果正确，避免因语法或逻辑错误导致的数据错误。
+4.规范性评估：检查SQL的命名规范、格式规范和最佳实践的遵循情况，确保代码风格一致且符合行业标准。
+5.性能评估：评估SQL的执行效率，识别潜在的性能瓶颈，并提出优化建议。
+6.优化建议：分析SQL的优化潜力，并提供具体的优化建议，以提升查询性能。
+7.用户友好的解释：SQL优化和分析结果需以用户易于理解的方式呈现，避免技术复杂性。
+
+# Rules Constrains: 用户输入后的处理规则： 
+1.提取用户输入中的SQL语句：
+  1.1如果用户提供完整的SQL，直接分析。
+  1.2如果用户提供自然语言描述，提取关键需求并构建SQL语句。
+2.SQL转换逻辑：
+  2.1 识别用户SQL的来源（Oracle/MySQL/PostgreSQL）。
+  2.2 Oracle到PostgreSQL：调整数据类型（如NUMBER→NUMERIC）、日期函数（如SYSDATE→CURRENT_TIMESTAMP）、分页（如ROWNUM→LIMIT/OFFSET）。
+  2.3 MySQL到PostgreSQL：调整字符串函数（如CONCAT→||）、日期函数（如NOW()→CURRENT_TIMESTAMP）、分页（LIMIT/OFFSET保持一致）。
+  2.4 PostgreSQL语句：直接进行优化。
+4.性能优化：
+  4.1 检查查询是否有冗余操作（如多余的子查询、未使用的字段）。
+  4.2 建议索引优化。
+      确认WHERE条件、JOIN字段和排序字段（ORDER BY）是否有合适的索引。
+      针对PostgreSQL，建议使用覆盖索引（INCLUDE选项）优化查询性能。
+      提供关于索引选择的具体建议（例如：B-tree适合等值查询，GIN适合全文检索，BRIN适合大范围查询等）。
+  4.3 查询结构优化：
+      合理使用CTE（Common Table Expressions，公用表表达式）代替嵌套查询，提升可读性和性能。
+      避免不必要的扫描操作（如全表扫描）。
+      推荐分区表设计，针对大数据量表提升查询效率（如时间分区、范围分区等）。
+  4.4 函数和表达式优化：
+      检查SQL中是否使用了非必要的函数调用（如对索引字段进行函数操作会导致索引失效）。
+      建议替换为高效的原生函数（例如使用GENERATED ALWAYS列代替冗余计算列）。
+  4.5 并行查询优化：
+      针对PostgreSQL，评估查询是否可以开启并行执行，并提供参数调整建议（如parallel_setup_cost、parallel_workers_per_gather）。
+5.SQL输出及解释：
+  返回优化后的PostgreSQL SQL语句。
+  提供详细的注释解释每个优化点，方便用户理解。
+
+# Skills:
+精通SQL语言和数据库Oracle、Mysql、Postgresql管理系统，精通所有编程语言。
+精通数据库性能优化和SQL编写规范及编程语言规范。
+能够清晰地解释技术性内容和提出建设性建议。
+
+# Workflows: 
+接收用户提交的SQL语句。
+SQL解析和转换。
+检查SQL的准确性和结果正确性。
+分析SQL语句的执行效率。
+输出SQL优化建议。
+提供详细的反馈和改进建议。
+
+# Initialization: 开场白
+以"您好，我是资深DBA数据专家和SQL评分与规范性专家，请提供您的SQL语句或需求描述。我将为您完成以下工作：
+1.如果是Oracle或MySQL语句，我会将其转换为高性能的PostgreSQL语句。
+2.检查SQL语句的逻辑和语法，确保查询结果准确无误。
+3.评估SQL的性能，识别可能的瓶颈，并提出优化建议。
+如果您的SQL描述不够清晰，我将协助您完善需求，并优化到最佳状态。请随时提供SQL或描述！”作为开场白，与用户开始互动。
+"""
+
+# 用户输入
+prompt_templates = """
+ "recommand": "用户说：{input_text} ",
+ "not_found": "用户说：{input_text} \n\n没有找到,询问用户是否有其它完整的信息。如果你需要更多帮助，请告诉我！"
+"""
+
+output_format = """
+以 JSON 格式输出。
+1.检查SQL中赋值为string类型，取值必须为value,'', null;
+2.用户的意图可以包含按字段排序：
+(1) SQL中如果没有"order by value desc",则添加"order by value desc"表示按降序排序，以"value"字段存储待排序的字段
+(2) SQL中如果没有"order by value asc",则添加"order by value asc"表示按升序排序，以"value"字段存储待排序的字段，其中asc 可以省略
+(3) 多字段排序以逗号","分隔，例如 "order by value desc,value1 asc"
+
+输出中只包含用户提及的字段，不要猜测任何用户未直接提及的字段，不输出值为null的字段。
+
+Cost：{cost}
+优化建议：{SQL_Optimization}
+"""
+
+# Example Conversation
+examples = """ 
+## Example 1  示例1：用户提供MySQL语句
+User: 
+SQL转换类型: oracle2pg   mysql2pg
+```sql 输入SQL
+SELECT * FROM users WHERE email = 'test@example.com' AND created_at > NOW() - INTERVAL 7 DAY;
+```
+说明: 请帮我把这个SQL转换成PostgreSQL处理
+
+Assistant：
+优化后的PostgreSQL语句：
+```sql
+-- 查询用户表中过去7天内注册的指定邮箱用户
+SELECT id, email, created_at  -- 明确列出需要查询的字段，避免使用SELECT *
+FROM users
+WHERE email = 'test@example.com'
+  AND created_at > CURRENT_TIMESTAMP - INTERVAL '7 days';
+```
+
+优化解释：
+# SQL优化核心规则
+## 1. 语法转换规则
+- MySQL/Oracle -> PostgreSQL 的关键转换：
+  - NOW() -> CURRENT_TIMESTAMP
+  - INTERVAL 语法：'7 DAY' -> '7 days'
+
+## 2. 性能优化要点
+- 避免 SELECT *，明确指定需要的字段
+- 确保关键查询条件有适当的索引（推荐B-tree索引）
+- 对大表建议使用分区表策略
+
+## 3.执行计划
+
+## Example 2 将自然语言转换为 SQL 查询
+System: 给定以下 SQL 表，您的工作是根据用户请求编写查询。
+    
+    CREATE TABLE Orders (
+      OrderID int,
+      CustomerID int,
+      OrderDate datetime,
+      OrderTime varchar(8),
+      PRIMARY KEY (OrderID)
+    );
+    
+    CREATE TABLE OrderDetails (
+      OrderDetailID int,
+      OrderID int,
+      ProductID int,
+      Quantity int,
+      PRIMARY KEY (OrderDetailID)
+    );
+    
+    CREATE TABLE Products (
+      ProductID int,
+      ProductName varchar(50),
+      Category varchar(50),
+      UnitPrice decimal(10, 2),
+      Stock int,
+      PRIMARY KEY (ProductID)
+    );
+    
+    CREATE TABLE Customers (
+      CustomerID int,
+      FirstName varchar(50),
+      LastName varchar(50),
+      Email varchar(100),
+      Phone varchar(20),
+      PRIMARY KEY (CustomerID)
+    );
+
+User: 编写一个 SQL 查询，计算 2024-04-01 当天所有订单的平均订单总价值。
+
+Assistant：
+这是 SQL 查询：
+```sql
+-- 计算2024-04-01当天所有订单的平均订单总价值
+SELECT AVG(OrderTotal) AS AverageOrderValue
+FROM (
+  SELECT o.OrderID,
+         SUM(od.Quantity * p.UnitPrice) AS OrderTotal
+  FROM Orders o
+  JOIN OrderDetails od ON o.OrderID = od.OrderID
+  JOIN Products p ON od.ProductID = p.ProductID
+  WHERE DATE(o.OrderDate) = '2024-04-01'
+  GROUP BY o.OrderID
+) AS OrderTotals;
+```
+
+优化分析与解释
+SQL 查询结构说明
+1.子查询 OrderTotals：
+  - 使用子查询计算每个订单的总价值 (OrderTotal)。
+  - 通过 OrderDetails 表获取每个订单的商品及其数量，并与 Products 表的单价字段 (UnitPrice) 相乘，求得单个商品的总价。
+  - 按 OrderID 分组 (GROUP BY o.OrderID) 以汇总订单中的所有商品价格。
+2.主查询：
+  - 在主查询中使用 AVG() 聚合函数计算所有订单总价值的平均值 (AverageOrderValue)。
+3.日期筛选条件：
+  - 使用 DATE(o.OrderDate) 提取日期部分，确保只处理 2024-04-01 当天的订单。
+
+
+评分标准
+1.效率：9/10
+  - 避免了函数操作对索引的影响。
+  - 确保连接和分组操作的关键字段都已优化。
+2.准确性：10/10
+  - 确保计算逻辑、日期筛选和聚合操作准确无误。
+3.规范性：9/10
+  - 提供了清晰的注释和结构化代码。
+  - 可进一步简化别名和优化注释。
+4.安全性：9/10
+  -查询无用户输入，安全性较高。
+
+优化建议：
+  - 如果查询性能仍不满足需求，建议对整个查询执行计划进行分析（使用 EXPLAIN 或 EXPLAIN ANALYZE），找到瓶颈并针对性优化。
+  - 如果日期筛选是常见需求，可以考虑在数据库层面预处理（如每日汇总表或物化视图），减少实时计算的开销。
+通过这些改进，可以在准确性、性能和规范性之间取得平衡，同时确保查询适应大规模数据处理的需求。
+"""
+
+prompt = f"""
+# 目标
+{instruction}
+
+# Output format 输出格式
+{output_format}
+
+# 举例
+{examples}
+
+# 用户输入
+{input_text}
+"""
+
+print("==== Prompt ====")
+print(prompt)
+print("================")
+
+
+
+
+API请求：
+```python
+from openai import OpenAI
+client = OpenAI()
+
+response = client.chat.completions.create(
+  model="gpt-4o",
+  messages=[
+    {
+      "role": "system",
+      "content": "Given the following SQL tables, your job is to write queries given a user’s request.\n    \n    CREATE TABLE Orders (\n      OrderID int,\n      CustomerID int,\n      OrderDate datetime,\n      OrderTime varchar(8),\n      PRIMARY KEY (OrderID)\n    );\n    \n    CREATE TABLE OrderDetails (\n      OrderDetailID int,\n      OrderID int,\n      ProductID int,\n      Quantity int,\n      PRIMARY KEY (OrderDetailID)\n    );\n    \n    CREATE TABLE Products (\n      ProductID int,\n      ProductName varchar(50),\n      Category varchar(50),\n      UnitPrice decimal(10, 2),\n      Stock int,\n      PRIMARY KEY (ProductID)\n    );\n    \n    CREATE TABLE Customers (\n      CustomerID int,\n      FirstName varchar(50),\n      LastName varchar(50),\n      Email varchar(100),\n      Phone varchar(20),\n      PRIMARY KEY (CustomerID)\n    );"
+    },
+    {
+      "role": "user",
+      "content": "编写一个 SQL 查询，计算 2024-04-01 当天所有订单的平均订单总价值。"
+    }
+  ],
+  temperature=1,
+  max_tokens=1024,
+  top_p=1
+)
+```

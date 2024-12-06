@@ -1,0 +1,10 @@
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: http://localhost:11434/v1
+      api-key: skdemo
+      model-name: qwen2.5-coder:7b
+      timeout: 30000
+      max-tokens: 2000
+    streaming-chat-model:
+      api-key: demo
