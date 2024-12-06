@@ -1,5 +1,6 @@
 package com.xml.sqlbrigerai.service;
 
+import com.xml.sqlbrigerai.aiservice.AiTools;
 import com.xml.sqlbrigerai.aiservice.ChatMemoryProvider;
 import com.xml.sqlbrigerai.dto.AiRequest;
 import com.xml.sqlbrigerai.dto.AiResult;
@@ -53,6 +54,9 @@ public class SqlOrchestrationService {
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
 
+    @Autowired
+    private AiTools aiTools;
+
     public SqlAnalysisResult processSqlRequest(String userId,SqlTranslateRequestDTO request) {
 
             log.info("Processing SQL request: {}", request);
@@ -63,6 +67,7 @@ public class SqlOrchestrationService {
                 // 创建 AI 服务
                 ISqlService ISqlService = AiServices.builder(ISqlService.class)
                         .chatLanguageModel(chatLanguageModel)
+                        .tools(aiTools)
                         .chatMemoryProvider(uid -> chatMemory)
                         .build();
 

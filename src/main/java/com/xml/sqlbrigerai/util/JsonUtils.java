@@ -3,11 +3,13 @@ package com.xml.sqlbrigerai.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class JsonUtils {
 
     private static final Gson gson = new Gson();
@@ -34,8 +36,8 @@ public class JsonUtils {
     public static <T> T fromJson(String jsonString, Class<T> classType) {
         try {
             return gson.fromJson(jsonString, classType);
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("JSON转换失败：" + e.getMessage());
             return null;
         }
     }
