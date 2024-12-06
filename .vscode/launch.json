@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+      {
+          "type": "java",
+          "name": "Start Application",
+          "request": "launch",
+          "mainClass": "com.xml.sqlbrigerai.SqlBrigerAiApplication",
+          "projectName": "SQLBrigerAI",
+          "console": "internalConsole",
+          "preLaunchTask": "java (build): Build Workspace",
+      }
+  ]
+}
