@@ -39,6 +39,33 @@
 - 配置层：配置虚拟线程、SQL解析工具和模型接口。
 
 # 3.部署
+## 安装git
+```bash
+# 安装git
+# 第一次使用：         
+centos：
+yum install git       
+
+Ubuntu：
+apt-get install git
+
+# 克隆项目
+git clone https://github.com/mlxiong518/SQLBrigerAI.git
+
+# 更新本地代码 
+git pull
+
+# 查看代码状态 
+git status
+
+# 后面提交代码
+git pull //拉取最新的代码文件
+git add .     
+git commit -m "first commit" //第一次提交  
+git pull //！！！ 提交之前，先同步下最新版的代码，避免冲突
+git push -u origin master //同步到远程服务器
+```
+
 ## 3.1 容器化部署
   项目使用 `Docker` 进行容器化部署，确保项目的可移植性和可重复性。
 ```bash
