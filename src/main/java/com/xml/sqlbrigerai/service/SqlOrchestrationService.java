@@ -27,8 +27,8 @@ import java.util.List;
 @Service
 public class SqlOrchestrationService {
 
-//    @Resource
-//    private SqlQueryPlanService parserService;
+    @Resource
+    private SqlQueryPlanService sqlQueryPlanService;
 
     @Resource
     private ChatLanguageModel chatLanguageModel;
@@ -97,6 +97,7 @@ public class SqlOrchestrationService {
                 future.join();*/
 
                 // 4. 获取执行计划
+                analysisResult.setExecutionPlan(sqlQueryPlanService.getQueryPlan(analysisResult.getPostgresqlSql()));
 
                 // 返回结果
                 return analysisResult;

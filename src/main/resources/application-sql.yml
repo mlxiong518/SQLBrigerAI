@@ -1,0 +1,26 @@
+sql-datasource:
+  enabled: true
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:15432/db01?useUnicode=true&characterEncoding=utf-8&characterSetResults=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    username: postgres
+    password: 123456
+    hikari:
+      connection-timeout: 30000 # 等待连接池分配连接的最大时长（毫秒），默认:30秒
+      minimum-idle: 5 # 最小空闲连接数，默认:5
+      maximum-pool-size: 20 # 最大连接数，默认:10
+      auto-commit: true # 事务自动提交
+      idle-timeout: 600000 # 等待连接池释放连接的最大时长（毫秒），默认:60秒
+      pool-name: DateSourceHikariCP # 连接池名字，默认:HikariCP
+      max-lifetime: 1800000 # 连接的最大存活时间（毫秒），默认:1800秒
+      connection-test-query: SELECT 1 # 探活查询，默认:SELECT 1
+      register-mbeans: true  # 启用 JMX 监控
+      data-source-properties:
+        cachePrepStmts: true # 缓存预编译语句
+        prepStmtCacheSize: 250 # 预编译语句缓存大小
+        prepStmtCacheSqlLimit: 2048 # 预编译语句缓存 SQL 大小
+        useServerPrepStmts: true # 开启服务端预编译
+        cacheServerConfiguration: true # 开启服务端预编译配置缓存
+        maintainTimeStats: false # 开启服务端预编译配置缓存

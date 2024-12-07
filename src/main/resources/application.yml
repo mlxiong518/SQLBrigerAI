@@ -11,8 +11,8 @@ spring:
   application:
     name: SQLBrigerAI
   profiles:
-#    active: dev
-    active: default
+    active: sql
+#    active: default
 #    active: @profiles.activate@
   main:
     banner-mode: off

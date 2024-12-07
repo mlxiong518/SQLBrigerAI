@@ -3,6 +3,8 @@ package com.xml.sqlbrigerai.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class SqlAnalysisResult {
@@ -11,6 +13,6 @@ public class SqlAnalysisResult {
     private String errorMessage;
     private String postgresqlSql;
     private String result;
-    private String executionPlan;
+    private List<String> executionPlan;
     private String estimatedTime;
 }
