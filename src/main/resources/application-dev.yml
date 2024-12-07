@@ -1,4 +1,4 @@
-langchain4j:
+spring:
   open-ai:
     chat-model:
       base-url: http://localhost:11434/v1
@@ -8,3 +8,4 @@ langchain4j:
       max-tokens: 2000
     streaming-chat-model:
       api-key: demo
+

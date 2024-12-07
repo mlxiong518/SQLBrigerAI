@@ -161,7 +161,7 @@ Oracle JDBC Driver 和 MySQL JDBC Driver:
 <dependency>
     <groupId>org.postgresql</groupId>
     <artifactId>postgresql</artifactId>
-    <version>42.6.0</version>
+    <version>42.7.4</version>
 </dependency>
 
 <!-- MySQL 驱动 -->

@@ -7,43 +7,28 @@ import com.xml.sqlbrigerai.dto.AiResult;
 import com.xml.sqlbrigerai.dto.SqlAnalysisResult;
 import com.xml.sqlbrigerai.dto.SqlTranslateRequestDTO;
 import com.xml.sqlbrigerai.exception.SqlProcessingException;
-import com.xml.sqlbrigerai.aiservice.PersistentChatMemoryStore;
 import com.xml.sqlbrigerai.aiservice.ISqlService;
 import com.xml.sqlbrigerai.util.JsonUtils;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.memory.chat.TokenWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.openai.OpenAiChatModelName;
-import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.service.AiServices;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import java.io.Reader;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
 public class SqlOrchestrationService {
 
-    @Resource
-    private SqlParserService parserService;
-
-    @Resource
-    private SqlTransformerService transformerService;
+//    @Resource
+//    private SqlQueryPlanService parserService;
 
     @Resource
     private ChatLanguageModel chatLanguageModel;
