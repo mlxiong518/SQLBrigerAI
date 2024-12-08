@@ -94,6 +94,12 @@ CREATE TABLE owuser.tm_user (
     email       VARCHAR(255) NOT NULL,
     create_date TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- 添加comm
+COMMENT ON TABLE owuser.tm_user IS '用户表';
+COMMENT ON COLUMN owuser.tm_user.id IS '用户ID';
+COMMENT ON COLUMN owuser.tm_user.user_name IS '用户名';
+COMMENT ON COLUMN owuser.tm_user.email IS '邮箱';
+COMMENT ON COLUMN owuser.tm_user.create_date IS '创建时间'; 
 
 -- 插入订单明细数据 tt_product_info
 drop table if exists owuser.tt_product_info;
@@ -105,6 +111,13 @@ CREATE TABLE owuser.tt_product_info
     product_descr  TEXT           NOT NULL,
     create_date    TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- 添加comm
+COMMENT ON TABLE owuser.tt_product_info IS '产品信息表';
+COMMENT ON COLUMN owuser.tt_product_info.id IS '产品ID';
+COMMENT ON COLUMN owuser.tt_product_info.product_name IS '产品名称';
+COMMENT ON COLUMN owuser.tt_product_info.price_per_unit IS '单价';
+COMMENT ON COLUMN owuser.tt_product_info.product_descr IS '产品描述';
+COMMENT ON COLUMN owuser.tt_product_info.create_date IS '创建时间';
 
 -- 在 owuser schema 下创建表 tt_order
 drop table if exists owuser.tt_order;
@@ -114,6 +127,12 @@ CREATE TABLE owuser.tt_order (
     order_date   TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_amount NUMERIC(10, 2) NOT NULL
 );
+-- 添加comm
+COMMENT ON TABLE owuser.tt_order IS '订单表';
+COMMENT ON COLUMN owuser.tt_order.id IS '订单ID';
+COMMENT ON COLUMN owuser.tt_order.customer_id IS '客户ID';
+COMMENT ON COLUMN owuser.tt_order.order_date IS '订单日期';    
+
 -- 在 owuser schema 下创建表 tt_order_item
 drop table if exists owuser.tt_order_item;
 CREATE TABLE owuser.tt_order_item
@@ -128,6 +147,15 @@ CREATE TABLE owuser.tt_order_item
     FOREIGN KEY (order_id) REFERENCES owuser.tt_order (id),
     FOREIGN KEY (product_id) REFERENCES owuser.tt_product_info (id)
 );
+-- 添加comm
+COMMENT ON TABLE owuser.tt_order_item IS '订单明细表';
+COMMENT ON COLUMN owuser.tt_order_item.id IS '订单明细ID';
+COMMENT ON COLUMN owuser.tt_order_item.order_id IS '订单ID';
+COMMENT ON COLUMN owuser.tt_order_item.product_id IS '产品ID';
+COMMENT ON COLUMN owuser.tt_order_item.quantity IS '数量';
+COMMENT ON COLUMN owuser.tt_order_item.total_price IS '总价';
+COMMENT ON COLUMN owuser.tt_order_item.order_descr IS '订单描述';
+COMMENT ON COLUMN owuser.tt_order_item.create_date IS '创建时间';
 
 ```
 ## 插入数据
