@@ -1,8 +1,8 @@
 package com.xml.sqlbrigerai.service;
 
+import com.xml.sqlbrigerai.aiservice.AiChatMemoryProvider;
 import com.xml.sqlbrigerai.aiservice.AiTools;
 import com.xml.sqlbrigerai.aiservice.IAiChatService;
-import com.xml.sqlbrigerai.aiservice.ChatMemoryProvider;
 import com.xml.sqlbrigerai.dto.R;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -19,7 +19,7 @@ public class ChatService {
     private ChatLanguageModel chatLanguageModel;
 
     @Autowired
-    private ChatMemoryProvider chatMemoryProvider;
+    private AiChatMemoryProvider chatMemoryProvider;
 
     @Autowired
     private AiTools aiTools;

@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
-public class ChatMemoryProvider {
+public class AiChatMemoryProvider {
 
     @Value("${langchain4j.chat-store:MEMORY}")
     private String chatMemoryStoreDb;

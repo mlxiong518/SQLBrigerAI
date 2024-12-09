@@ -6,6 +6,10 @@ server:
       min-spare: 30
     uri-encoding: UTF-8
   max-http-request-header-size: 32KB
+  servlet:
+    context-path: /sqlai
+    encoding:
+      charset: UTF-8
 
 spring:
   application:

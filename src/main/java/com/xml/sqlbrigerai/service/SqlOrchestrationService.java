@@ -1,13 +1,13 @@
 package com.xml.sqlbrigerai.service;
 
+import com.xml.sqlbrigerai.aiservice.AiChatMemoryProvider;
 import com.xml.sqlbrigerai.aiservice.AiTools;
-import com.xml.sqlbrigerai.aiservice.ChatMemoryProvider;
+import com.xml.sqlbrigerai.aiservice.ISqlService;
 import com.xml.sqlbrigerai.dto.AiRequest;
 import com.xml.sqlbrigerai.dto.AiResult;
 import com.xml.sqlbrigerai.dto.SqlAnalysisResult;
 import com.xml.sqlbrigerai.dto.SqlTranslateRequestDTO;
 import com.xml.sqlbrigerai.exception.SqlProcessingException;
-import com.xml.sqlbrigerai.aiservice.ISqlService;
 import com.xml.sqlbrigerai.util.JsonUtils;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
@@ -34,7 +34,7 @@ public class SqlOrchestrationService {
     private ChatLanguageModel chatLanguageModel;
 
     @Autowired
-    private ChatMemoryProvider chatMemoryProvider;
+    private AiChatMemoryProvider chatMemoryProvider;
 
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;

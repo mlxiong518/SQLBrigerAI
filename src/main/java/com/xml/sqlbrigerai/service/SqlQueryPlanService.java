@@ -1,5 +1,10 @@
 package com.xml.sqlbrigerai.service;
 
+import com.xml.sqlbrigerai.aiservice.AiChatMemoryProvider;
+import com.xml.sqlbrigerai.aiservice.IAiChatService;
+import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.service.AiServices;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +28,39 @@ public class SqlQueryPlanService {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private ChatLanguageModel chatLanguageModel;
+
+    @Autowired
+    private AiChatMemoryProvider chatMemoryProvider;
+
+    private final String FILTER_INSTRUCTION = """
+    你需要根据指定的Input从Instruction中筛选出最相关的表信息（可能是单个表或多个表），
+    首先，我将给你展示一个示例，Instruction后面跟着Input和对应的Response，
+    然后，我会给你一个新的Instruction和新的Input，你需要生成一个新的Response来完成任务。
+
+    ### Example1 Instruction:
+    job(id, name, age), user(id, name, age), student(id, name, age, info)
+    ### Example1 Input:
+    Find the age of student table
+    ### Example1 Response:
+    student(id, name, age, info)
+    ###New Instruction:
+    {instruction}
+    ###New Input:
+    {input}
+    ###New Response:
+    """;
+
+    private final String GENERATE_INSTRUCTION = """
+    你扮演一个SQL终端，您只需要返回SQL命令给我，而不需要返回其他任何字符。下面是一个描述任务的Instruction，返回适当的结果完成Input对应的请求.
+    ###Instruction:
+    {instruction}
+    ###Input:
+    {input}
+    ###Response:
+    """;
 
     /**
      * 获取查询计划
@@ -96,6 +133,38 @@ public class SqlQueryPlanService {
         return null;
     }
 
+    public String chatToSql(String sql) {
+        // 获取表信息
+        Map<String, List<String>> tableInfo = getTableInfo();
+        List<String> tableInfoList  = tableInfo.entrySet().stream().map(entry -> {
+            String tableName = entry.getKey();
+            List<String> columnList = entry.getValue();
+            return String.format("%s(%s)", tableName, StringUtils.join(columnList, ", "));
+        }).toList();
+
+        String tableInfoPrompt = StringUtils.join(tableInfoList, ",");
+
+
+        String filterSqlMessage = FILTER_INSTRUCTION.replace("{instruction}", tableInfoPrompt)
+                .replace("{input}", sql);
+
+        String userId = "123";
+        ChatMemory chatMemory = chatMemoryProvider.getMessageWindowChatMemory(userId, null);
+        IAiChatService aiChatService = AiServices.builder(IAiChatService.class).chatLanguageModel(chatLanguageModel)
+                .chatMemoryProvider(uid -> chatMemory)
+                .build();
+
+        String resultTab = aiChatService.aiChat(userId,filterSqlMessage);
+        log.info("chat resultTab: {}", resultTab);
+
+        String reqSqlMessage = GENERATE_INSTRUCTION.replace("{instruction}", resultTab)
+                .replace("{input}", sql);
+
+        String result = aiChatService.aiChat(userId,reqSqlMessage);
+        result = result.replace("```sql", "").replace("```", "");
+        log.info("chat result: {}", result);
+        return result;
+    }
 }
 
 

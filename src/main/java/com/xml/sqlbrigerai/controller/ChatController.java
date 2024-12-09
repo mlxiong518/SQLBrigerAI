@@ -1,7 +1,7 @@
 package com.xml.sqlbrigerai.controller;
 
+import com.xml.sqlbrigerai.aiservice.AiChatMemoryProvider;
 import com.xml.sqlbrigerai.aiservice.AiTools;
-import com.xml.sqlbrigerai.aiservice.ChatMemoryProvider;
 import com.xml.sqlbrigerai.aiservice.IAiChatService;
 import com.xml.sqlbrigerai.dto.ChatRequestDTO;
 import com.xml.sqlbrigerai.dto.R;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping(produces = "application/json")
+@RequestMapping(produces = "application/json;charset=UTF-8")
 public class ChatController {
 
     @Autowired
@@ -38,7 +38,7 @@ public class ChatController {
     private AiTools aiTools;
 
     @Autowired
-    private ChatMemoryProvider chatMemoryProvider;
+    private AiChatMemoryProvider chatMemoryProvider;
 
 
     @GetMapping("/test")
@@ -56,9 +56,8 @@ public class ChatController {
     }
 
     @GetMapping("/v1/chat")
-    public R chat(@RequestParam(required = false) String content) {
+    public R chat(@RequestParam(defaultValue = "你是哪个模型,并介绍一下") String content) {
         log.info("chat content: {}", content);
-        content = content != null ? content : "hello I'm, 你是哪个模型，介绍一下";
         String result = chatLanguageModel.generate(content);
         log.info("chat result: {}", result);
         return R.data(result);

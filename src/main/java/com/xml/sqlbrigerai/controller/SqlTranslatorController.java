@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping(produces = "application/json")
+@RequestMapping(produces = "application/json;charset=UTF-8")
 public class SqlTranslatorController {
 
     @Resource
