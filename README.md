@@ -98,6 +98,6 @@ docker run -p 8080:8080 SQLBrigerAI:0.0.1
 这将启动一个容器，并将应用程序暴露在宿主机的8080端口。
 
 ```java
-mvn clean package
+mvn clean package -DskipTests -T 4
 java -jar SQLBrigerAI.jar --spring.profiles.active=dev
 ```
