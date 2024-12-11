@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Command Output</title>
+</head>
+<body>
+<h1>Command Output</h1>
+<pre id="output"></pre>
+
+<script>
+    const outputElement = document.getElementById('output');
+
+    function startCommand() {
+        const apiUrl = 'http://localhost:8081/sqlai/webflux/execute-command'; // 替换为你的命令
+        const eventSource = new EventSource(apiUrl);
+
+        eventSource.onmessage = function(event) {
+            outputElement.textContent += event.data + '\n';
+        };
+
+        eventSource.onerror = function(err) {
+            console.error("EventSource failed:", err);
+            eventSource.close();
+        };
+    }
+
+    startCommand();
+</script>
+</body>
+</html>
