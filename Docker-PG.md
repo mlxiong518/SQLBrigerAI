@@ -68,6 +68,13 @@ docker restart postgres17
 -- 创建用户 owuser
 CREATE USER owuser WITH PASSWORD 'Pass@1234';
 
+CREATE USER dpuser WITH PASSWORD 'Pass@1234';
+GRANT USAGE ON SCHEMA owuser TO dpuser;
+-- 授予 owuser 用户 SELECT, INSERT, UPDATE, DELETE, TRUNCATE 权限
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE owuser.tt_order TO dpuser;
+
+select * from owuser.tt_order limit 1;
+
 -- 创建数据库 db01
 CREATE DATABASE db01 OWNER owuser;
 
