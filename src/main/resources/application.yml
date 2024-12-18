@@ -5,6 +5,7 @@ server:
       max: 1000
       min-spare: 30
     uri-encoding: UTF-8
+    keep-alive-timeout: 120000
   max-http-request-header-size: 32KB
   servlet:
     context-path: /sqlai
@@ -31,6 +32,12 @@ spring:
   threads:
     virtual:
       enabled: false
+#  mvc:
+#    pathmatch:
+#      matching-strategy: ant-path-matcher
+#  webflux:
+#    port: 8081
+#    base-path: /webflux
 
 langchain4j:
   open-ai:
@@ -39,7 +46,7 @@ langchain4j:
       api-key: demo
       model-name: gpt-4o-mini
       timeout: 30000
-      max-tokens: 2000
+#      max-tokens: 2000
     streaming-chat-model:
       api-key: demo
     moderation-model:
